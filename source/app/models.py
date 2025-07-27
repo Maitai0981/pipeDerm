@@ -37,17 +37,35 @@ class ModelManager:
             name = MODEL_CONFIG[model_key]
             processor = processor_class.from_pretrained(name)
             
+            # ✅ INÍCIO DA CORREÇÃO: Adicionar o chat template ao tokenizer do LLM
+            if model_key == "llm":
+                processor.chat_template = (
+                    "{% for message in messages %}"
+                    "{% if message['role'] == 'user' %}"
+                    "{{ '<|start_header_id|>user<|end_header_id|>\n\n' + message['content'] + '<|eot_id|>' }}"
+                    "{% elif message['role'] == 'system' %}"
+                    "{{ '<|start_header_id|>system<|end_header_id|>\n\n' + message['content'] + '<|eot_id|>' }}"
+                    "{% elif message['role'] == 'assistant' %}"
+                    "{{ '<|start_header_id|>assistant<|end_header_id|>\n\n' + message['content'] + '<|eot_id|>' }}"
+                    "{% endif %}"
+                    "{% endfor %}"
+                    "{% if add_generation_prompt %}"
+                    "{{ '<|start_header_id|>assistant<|end_header_id|>\n\n' }}"
+                    "{% endif %}"
+                )
+            # ✅ FIM DA CORREÇÃO
+            
             model_args = {"device_map": "auto", **kwargs}
-            if quant_config and "llm" in model_key or "blip2" in model_key:
+            if quant_config and ("llm" in model_key or "blip2" in model_key):
                 model_args["quantization_config"] = quant_config
                 model_args["torch_dtype"] = self.torch_dtype
 
             model = model_class.from_pretrained(name, **model_args)
             
-            if self.device.type == 'cuda' and "llm" in model_key or "blip2" in model_key:
+            if self.device.type == 'cuda' and ("llm" in model_key or "blip2" in model_key):
                 model = torch.compile(model)
 
             return processor, model
         except Exception as e:
-            logger.error(f"Falha ao carregar o modelo {model_key}: {e}")
+            logger.error(f"Falha ao carregar o modelo {model_key}: {e}", exc_info=True)
             raise RuntimeError(f"Erro no carregamento do modelo {model_key}")

@@ -7,12 +7,16 @@ from pathlib import Path
 from flask import (
     Blueprint, request, jsonify, current_app, render_template, send_from_directory
 )
-from app.app.services import run_analysis_pipeline
+from app.services import run_analysis_pipeline
 from config import ALLOWED_EXTENSIONS, RESULTS_DIR
 
+# Blueprint para a página principal (sem prefixo)
+main_bp = Blueprint('main', __name__)
+
+# Blueprint para as rotas da API (com prefixo /api)
 api_bp = Blueprint('api', __name__)
 
-@api_bp.route("/")
+@main_bp.route("/")
 def home():
     """Renderiza a página inicial de exemplo."""
     return render_template('index.html')
@@ -32,11 +36,11 @@ def predict():
     
     temp_path = None
     try:
+        # Salva o arquivo temporariamente para análise
         with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg", dir=RESULTS_DIR) as tmp:
             temp_path = Path(tmp.name)
             image_file.save(temp_path)
 
-        # Acessa o model_manager através do 'current_app'
         result = run_analysis_pipeline(temp_path, current_app.model_manager)
         result["tempo_processamento"] = f"{time.time() - start_time:.2f} segundos"
         return jsonify(result), 200
