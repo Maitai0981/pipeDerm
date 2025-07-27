@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Testador de API Derm AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="shortcut icon" href=".\favicon_io\favicon.ico" type="image/x-icon">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white max-w-lg w-full rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-semibold text-gray-800 mb-8 text-center">Testador de API de Diagnóstico de Pele</h1>
+        <form id="uploadForm" class="space-y-6" novalidate>
+            <label for="imageInput" class="block text-gray-700 font-medium mb-2">Selecione uma imagem da lesão cutânea</label>
+            <input 
+                type="file" 
+                id="imageInput" 
+                accept="image/*" 
+                class="block w-full text-gray-700 border border-gray-300 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                aria-describedby="fileHelp"
+                required
+            />
+            <p id="fileHelp" class="text-sm text-gray-500">Formatos permitidos: PNG, JPG, JPEG, BMP. Máximo 20MB.</p>
+            <button 
+                type="submit" 
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md transition-colors duration-300 flex items-center justify-center space-x-2"
+                aria-live="polite"
+            >
+                <i class="fas fa-microscope"></i>
+                <span>Analisar Imagem</span>
+            </button>
+        </form>
+        <div id="response-area" class="mt-8 bg-blue-50 border border-blue-200 rounded-md p-6 min-h-[150px] text-gray-700 whitespace-pre-wrap break-words text-sm"></div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const imageInput = document.getElementById('imageInput');
+        const responseArea = document.getElementById('response-area');
+
+        const API_URL = '/predict';
+
+        function sanitizeHTML(str) {
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        }
+
+        uploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const file = imageInput.files[0];
+            if (!file) {
+                responseArea.innerHTML = `<p class="text-red-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Por favor, selecione uma imagem.</p>`;
+                return;
+            }
+
+            // Validate file size (max 20MB)
+            if (file.size > 20 * 1024 * 1024) {
+                responseArea.innerHTML = `<p class="text-red-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Arquivo muito grande (${(file.size/(1024*1024)).toFixed(1)}MB). Máximo permitido: 20MB.</p>`;
+                return;
+            }
+
+            // Validate file type
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/bmp'];
+            if (!allowedTypes.includes(file.type)) {
+                responseArea.innerHTML = `<p class="text-red-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Tipo de arquivo não permitido. Use PNG, JPG, JPEG ou BMP.</p>`;
+                return;
+            }
+
+            responseArea.innerHTML = `<p class="text-blue-600 italic flex items-center justify-center space-x-2"><i class="fas fa-spinner fa-spin"></i><span>Enviando e analisando imagem...</span></p>`;
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorMsg = errorData.error || `Erro HTTP: ${response.status} ${response.statusText}`;
+                    responseArea.innerHTML = `<p class="text-red-600 font-semibold"><i class="fas fa-times-circle mr-2"></i>Erro na análise: ${sanitizeHTML(errorMsg)}</p>`;
+                    return;
+                }
+
+                const result = await response.json();
+
+                // Construir texto do diagnóstico principal e alternativas
+                let diagnosticoHTML = `<p class="font-semibold text-lg text-gray-800 mb-2">Diagnóstico Principal: <span class="text-blue-700">${sanitizeHTML(result.diagnostico.principal)}</span> (<span class="font-normal">${sanitizeHTML(result.diagnostico.confianca)}</span>)</p>`;
+                if (result.diagnostico.alternativas && result.diagnostico.alternativas.length > 0) {
+                    diagnosticoHTML += `<p class="font-semibold text-gray-700 mb-4">Diagnósticos Alternativos:</p><ul class="list-disc list-inside space-y-1 mb-6">`;
+                    for (const alt of result.diagnostico.alternativas) {
+                        diagnosticoHTML += `<li><span class="text-gray-800 font-medium">${sanitizeHTML(alt.nome)}</span> - <span class="text-gray-600">${sanitizeHTML(alt.confianca)}</span></li>`;
+                    }
+                    diagnosticoHTML += `</ul>`;
+                }
+
+                // Descrição da lesão
+                const descricaoHTML = `<div class="mb-6"><h2 class="text-xl font-semibold text-gray-800 mb-2">Descrição da Lesão</h2><p class="whitespace-pre-line text-gray-700">${sanitizeHTML(result.descricao_lesao)}</p></div>`;
+
+                // Laudo completo
+                const laudoHTML = `<div><h2 class="text-xl font-semibold text-gray-800 mb-2">Laudo Completo</h2><pre class="whitespace-pre-line text-gray-700 text-sm bg-white p-4 rounded border border-gray-300 max-h-64 overflow-y-auto">${sanitizeHTML(result.laudo_completo)}</pre></div>`;
+
+                // Imagens e JSON links
+                let recursosHTML = '';
+                if (result.recursos) {
+                    recursosHTML = `<div class="mt-6 space-y-4">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Recursos</h2>
+                        <div class="flex flex-col sm:flex-row sm:space-x-6 space-y-4 sm:space-y-0">
+                            <div class="flex-1 text-center">
+                                <p class="font-medium mb-2">Imagem Original</p>
+                                <img src="${sanitizeHTML(result.recursos.imagem_original)}" alt="Imagem original da lesão cutânea enviada para análise" class="mx-auto rounded shadow max-h-48 object-contain" />
+                            </div>
+                            <div class="flex-1 text-center">
+                                <p class="font-medium mb-2">Imagem Processada (CLAHE)</p>
+                                <img src="${sanitizeHTML(result.recursos.imagem_processada)}" alt="Imagem processada da lesão cutânea com realce de contraste CLAHE" class="mx-auto rounded shadow max-h-48 object-contain" />
+                            </div>
+                        </div>
+                        <p class="mt-4 text-center"><a href="${sanitizeHTML(result.recursos.json_metadata)}" target="_blank" class="text-blue-600 hover:underline font-medium"><i class="fas fa-file-alt mr-1"></i>Download do JSON com metadados</a></p>
+                    </div>`;
+                }
+
+                // Tempo e tamanho
+                const metaInfo = `<p class="mt-4 text-gray-500 text-sm italic text-center">Tempo de processamento: ${sanitizeHTML(result.tempo_processamento)} | Tamanho da imagem: ${sanitizeHTML(result.tamanho_imagem)}</p>`;
+
+                responseArea.innerHTML = diagnosticoHTML + descricaoHTML + laudoHTML + recursosHTML + metaInfo;
+
+            } catch (error) {
+                responseArea.innerHTML = `<p class="text-red-600 font-semibold"><i class="fas fa-times-circle mr-2"></i>Erro na análise: ${sanitizeHTML(error.message)}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

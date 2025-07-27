@@ -1,0 +1,26 @@
+{
+    "data_processamento": "27/07/2025 12:50:51",
+    "imagem_origem": "C:\\Users\\mathe\\Downloads\\pibic\\app\\api_results\\tmpqwwu5r8m.jpg",
+    "descricao_lesao": "Como um especialista em dermatologia, descreva objetivamente as características visíveis desta lesão cutânea em um parágrafo conciso. NÃO inclua URLs ou HTML. Descreva apenas morfologia, cor, bordas e superfície.",
+    "diagnosticos": [
+        {
+            "code": "NV",
+            "name": "Nevo Melanocítico",
+            "confidence": 0.9963876008987427,
+            "warning": ""
+        },
+        {
+            "code": "MEL",
+            "name": "Melanoma",
+            "confidence": 0.0034190022852271795,
+            "warning": ""
+        },
+        {
+            "code": "BKL",
+            "name": "Ceratose Benigna",
+            "confidence": 0.00017464612028561532,
+            "warning": ""
+        }
+    ],
+    "laudo_gerado": "Erro crítico durante a geração do laudo."
+}

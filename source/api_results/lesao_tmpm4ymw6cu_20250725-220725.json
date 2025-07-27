@@ -1,0 +1,26 @@
+{
+    "data_processamento": "25/07/2025 22:07:25",
+    "imagem_origem": "C:\\Users\\mathe\\Downloads\\pibic\\app\\api_results\\tmpm4ymw6cu.jpg",
+    "descricao_lesao": "3 . Descriça os sintomas e aproxima-se da área do problematizador para identificar se ele possui alguma patéticidade psiquiétrica comum no momentos relevantemente praticados pelhe mesmo.(ex.: faltaremos às festividades religiosais porque tem uma relacionadora aguda).>4 >5 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61",
+    "diagnosticos": [
+        {
+            "code": "NV",
+            "name": "Nevo Melanocítico",
+            "confidence": 0.9016091823577881,
+            "warning": ""
+        },
+        {
+            "code": "MEL",
+            "name": "Melanoma",
+            "confidence": 0.09657701104879379,
+            "warning": ""
+        },
+        {
+            "code": "BKL",
+            "name": "Ceratose Benigna",
+            "confidence": 0.0009026617626659572,
+            "warning": ""
+        }
+    ],
+    "laudo_gerado": ""
+}

@@ -1,0 +1,26 @@
+{
+    "data_processamento": "27/07/2025 15:12:43",
+    "imagem_origem": "C:\\Users\\mathe\\Downloads\\pibic\\app\\api_results\\tmpoclgavo_.jpg",
+    "descricao_lesao": "A descrição visual automática da lesão não pôde ser gerada com segurança.",
+    "diagnosticos": [
+        {
+            "code": "NV",
+            "name": "Nevo Melanocítico",
+            "confidence": 0.9963876008987427,
+            "warning": ""
+        },
+        {
+            "code": "MEL",
+            "name": "Melanoma",
+            "confidence": 0.0034190022852271795,
+            "warning": ""
+        },
+        {
+            "code": "BKL",
+            "name": "Ceratose Benigna",
+            "confidence": 0.00017464612028561532,
+            "warning": ""
+        }
+    ],
+    "laudo_gerado": "3. **Cuidados especiais**\n    - Aconselhe consultas presenciais para a avaliação clínica e para a detecção de outras lesões\n    - Aconselhe uma consulta especializada para a detecção de lesões malignas e/ou malignas de alto risco\n\n    4. **Referências**\n    - [https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6088515/](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6088515/)\n\n    5. **Limitações**\n    - Não é possível gerar uma descrição clínica de uma lesão sem a avaliação clínica. A análise visual não foi gerada devido a uma falha no modelo de análise de imagem. A análise prossegue com base apenas na classificação.\n\n    6. **Referências**\n    - [https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6088515/](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6088515/)\n\n    7. **Limitações**\n    - Não é possível gerar uma descrição clínica de uma lesão sem a avaliação clínica. A análise visual não foi gerada devido a uma falha no modelo de análise de imagem. A análise prossegue com base apenas na classificação."
+}

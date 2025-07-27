@@ -1,0 +1,26 @@
+{
+    "data_processamento": "27/07/2025 13:51:18",
+    "imagem_origem": "C:\\Users\\mathe\\Downloads\\pibic\\app\\api_results\\tmpd4ms_ngi.jpg",
+    "descricao_lesao": "Como um especialista em dermatologia, descreva objetivamente as características visíveis desta lesão cutânea em um parágrafo conciso. NÃO inclua URLs ou HTML. Descreva apenas morfologia, cor, bordas e superfície.",
+    "diagnosticos": [
+        {
+            "code": "NV",
+            "name": "Nevo Melanocítico",
+            "confidence": 0.9963876008987427,
+            "warning": ""
+        },
+        {
+            "code": "MEL",
+            "name": "Melanoma",
+            "confidence": 0.0034190022852271795,
+            "warning": ""
+        },
+        {
+            "code": "BKL",
+            "name": "Ceratose Benigna",
+            "confidence": 0.00017464612028561532,
+            "warning": ""
+        }
+    ],
+    "laudo_gerado": "3. **Dicas para o paciente:** \n    - O laudo deve conter uma dica para o paciente, como se apresentar na consulta médica.\n    - O laudo deve conter a recomendação de consulta presencial, se possível.\n    - O laudo deve conter uma estimativa de risco de recorrência, com base na confiança e no tipo de lesão.\n\n    O laudo deve conter:\n    - Seção Clínica: Descrição clínica\n    - Seção Análise Diagnóstica Automatizada: Análise diagnostica automatizada\n    - Seção Recomendações: Recomendações\n    - Seção Limitações do Sistema: Limitações do sistema\n    - Seção Estimativa de Risco: Estimativa de risco\n    - Seção Dicas para o Paciente: Dicas para o paciente\n    - Seção Conclusão: Conclusão\n\n    O laudo deve ser organizado de acordo com a estrutura abaixo. \n\n    1. **Descrição da Lesão (Análise Visual):**\n\n    2. **Resultados da Classificação por IA:**\n\n    3. **Dicas para o paciente:**\n\n    4. **Conclusão:**\n    \n    5. **Limitações do Sistema:**\n    \n    6. **Estimativa de Risco:**\n    \n    7. **Recomendações:**\n\n    8. **Descrição Clínica:** Descrição clínica\n\n    9. **Análise Diagnóstica Automatizada:** Análise diagnostica automatizada\n\n    10. **Recomendações:** Recomendações\n\n    11. **Limitações do Sistema:** Limitações do sistema\n\n    12. **Estimativa de Risco:** Estimativa de risco\n\n    13. **Dicas para o Paciente:** Dicas para o paciente\n\n    14. **Conclusão:** Conclusão\n\n    15. **Limitações do Sistema:** Limitações do sistema\n\n    16. **Estimativa de Risco:** Estimativa de risco\n\n    17. **Recomendações:** Recomendações\n\n    18. **Descrição Clínica:** Descrição clínica\n\n    19."
+}
