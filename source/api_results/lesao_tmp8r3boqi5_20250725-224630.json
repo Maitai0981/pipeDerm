@@ -1,0 +1,26 @@
+{
+    "data_processamento": "25/07/2025 22:46:30",
+    "imagem_origem": "C:\\Users\\mathe\\Downloads\\pibic\\app\\api_results\\tmp8r3boqi5.jpg",
+    "descricao_lesao": "3- Descriça os elementos da lei do tratement e sugestione a solución para el cumprir as regras exigidas por la FDA -> http://www2/healthcareinsider/?page=news&id_articleId=-1#ixzz3jqh9y4n8[/url]\n\n [IMAGE][FONT=\"Verde\"]http:\\//\\ /\\/imageshack\\.com\\/\\/files0\\-1031\\\\01231716331393267734684764954446248879284894706769056376598587518097389987808927972959085665539",
+    "diagnosticos": [
+        {
+            "code": "MEL",
+            "name": "Melanoma",
+            "confidence": 0.9549588561058044,
+            "warning": ""
+        },
+        {
+            "code": "BKL",
+            "name": "Ceratose Benigna",
+            "confidence": 0.02012408897280693,
+            "warning": ""
+        },
+        {
+            "code": "AK",
+            "name": "Ceratose Actínica",
+            "confidence": 0.014508978370577097,
+            "warning": "Baixa confiabilidade - requer confirmação especializada"
+        }
+    ],
+    "laudo_gerado": ""
+}

@@ -1,0 +1,11 @@
+flask
+flask-cors
+torch
+transformers
+bitsandbytes
+accelerate
+opencv-python-headless
+pillow
+numpy
+apscheduler
+gunicorn
