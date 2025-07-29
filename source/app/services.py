@@ -4,129 +4,166 @@ import re
 import json
 import time
 import logging
+import ollama
 from PIL import Image
 from pathlib import Path
+from functools import wraps
 from concurrent.futures import ThreadPoolExecutor
 from app.utils import aplicar_clahe
-from config import RESULTS_DIR
+from config import RESULTS_DIR, MODEL_CONFIG
 
 logger = logging.getLogger(__name__)
-executor = ThreadPoolExecutor(max_workers=2)
 
-def generate_llm_text(prompt: str, model_manager) -> str:
-    """Gera texto usando o modelo LLM, decodificando apenas a resposta."""
-    messages = [
-        {"role": "system", "content": "Você é DermAI, um assistente de IA que gera laudos dermatológicos preliminares concisos e bem estruturados."},
-        {"role": "user", "content": prompt}
-    ]
-    
-    try:
-        inputs_dict = model_manager.llm_tokenizer.apply_chat_template(
-            messages, tokenize=True, add_generation_prompt=True, return_tensors="pt"
-        ).to(model_manager.device)
+def clear_cuda_cache(func):
+    """Decorator para limpar o cache da VRAM da GPU após a execução da função."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        finally:
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+    return wrapper
 
-        outputs = model_manager.llm_model.generate(
-            input_ids=inputs_dict['input_ids'],
-            attention_mask=inputs_dict['attention_mask'],
-            max_new_tokens=512, 
-            do_sample=True, 
-            temperature=0.6, 
-            top_p=0.9
-        )
-        
-        response_ids = outputs[0][inputs_dict['input_ids'].shape[-1]:]
-        generated_text = model_manager.llm_tokenizer.decode(response_ids, skip_special_tokens=True).strip()
-        
-        return generated_text or "O laudo não pôde ser gerado pelo LLM."
-    except Exception as e:
-        logger.error(f"Falha crítica na geração de texto do LLM: {e}", exc_info=True)
-        return "Erro: A geração do laudo falhou."
+class DermatologyService:
+    """Encapsula toda a lógica de análise dermatológica."""
 
-def gerar_descricao_imagem(image: Image.Image, model_manager) -> str:
-    """Gera uma descrição textual da imagem da lesão, decodificando apenas a resposta."""
-    prompt = ("Descreva objetivamente as características visíveis desta lesão cutânea em um parágrafo conciso. "
-              "Foque apenas em morfologia, cor, bordas e superfície. Não inclua URLs ou HTML.")
-              
-    try:
-        inputs = model_manager.blip2_processor(image, text=prompt, return_tensors="pt").to(model_manager.device)
-        
-        output_tokens = model_manager.blip2_model.generate(**inputs, max_new_tokens=150)
-        
-        generated_ids = output_tokens[0][inputs.input_ids.shape[-1]:]
-        decoded = model_manager.blip2_processor.decode(generated_ids, skip_special_tokens=True).strip()
-        
-        is_valid = decoded and not re.search(r'<.*?>|https?://', decoded) and len(decoded.split()) > 5
-        return decoded if is_valid else "A descrição visual automática não pôde ser gerada com segurança."
-    except Exception as e:
-        logger.error(f"Falha na geração de descrição (BLIP-2): {e}", exc_info=True)
-        return "A descrição visual automática não pôde ser gerada com segurança."
+    def __init__(self, model_manager):
+        self.model_manager = model_manager
+        self.executor = ThreadPoolExecutor(max_workers=2)
+        self.llm_model_name = MODEL_CONFIG.get("llm", "llama3")
 
-def classificar_lesao(image: Image.Image, model_manager) -> list:
-    """Classifica a lesão de pele, retornando os 3 principais diagnósticos."""
-    try:
-        processed_image = aplicar_clahe(image).resize((224, 224))
-        model = model_manager.classifier_model
-        inputs = model_manager.classifier_processor(images=processed_image, return_tensors="pt")
+    def _generate_ollama_text(self, system_prompt: str, user_prompt: str) -> str:
+        try:
+            response = ollama.chat(
+                model=self.llm_model_name,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                options={"temperature": 0.5, "top_p": 0.9}
+            )
+            return response['message']['content'].strip()
+        except Exception as e:
+            logger.error(f"Falha ao se comunicar com a API do Ollama: {e}", exc_info=True)
+            return "Erro: Falha ao se comunicar com o modelo de linguagem (Ollama)."
+
+    @clear_cuda_cache
+    def _gerar_descricao_imagem(self, image: Image.Image) -> str:
+        """Gera uma descrição textual da imagem da lesão, com decodificação robusta."""
+        prompt = "Descreva objetivamente as características visíveis desta lesão cutânea em um parágrafo conciso. Foque apenas em morfologia, cor, bordas e superfície. Não inclua URLs ou HTML."
         
-        with torch.no_grad():
-            logits = model(**inputs).logits
-            probas = torch.nn.functional.softmax(logits, dim=-1)[0]
-            top3_conf, top3_idx = torch.topk(probas, 3)
-
-        return [{
-            "name": model_manager.class_mapping.get(model.config.id2label[idx.item()], "Desconhecido"),
-            "confidence": conf.item()
-        } for idx, conf in zip(top3_idx, top3_conf)]
-    except Exception as e:
-        logger.error(f"Erro na classificação da lesão: {e}", exc_info=True)
-        return []
-
-def run_analysis_pipeline(image_path: Path, model_manager) -> dict:
-    """Orquestra a pipeline de análise completa da imagem."""
-    try:
-        with Image.open(image_path).convert("RGB") as img:
-            future_classificacao = executor.submit(classificar_lesao, img, model_manager)
-            future_descricao = executor.submit(gerar_descricao_imagem, img, model_manager)
+        try:
+            inputs = self.model_manager.blip2_processor(
+                images=image, text=prompt, return_tensors="pt"
+            ).to(self.model_manager.device)
             
-            diagnostico = future_classificacao.result()
-            descricao = future_descricao.result()
-    except Exception as e:
-        logger.error(f"Erro ao processar imagem em paralelo: {e}")
-        return {"error": "Falha na análise inicial da imagem."}
+            output_tokens = self.model_manager.blip2_model.generate(
+                **inputs, max_new_tokens=150, do_sample=True, temperature=0.6, top_p=0.9
+            )
 
-    if not diagnostico:
-        return {"error": "A classificação da lesão falhou."}
+            decoded = self.model_manager.blip2_processor.batch_decode(
+                output_tokens, skip_special_tokens=True
+            )[0].strip()
+            logger.info(f"Resposta bruta do BLIP-2: '{decoded}'")
 
-    desc_laudo = descricao if "não pôde ser gerada" not in descricao else "A descrição visual não pôde ser gerada. A análise prossegue com base na classificação."
-    
-    prompt_laudo = f"""
-    Com base nos dados a seguir, gere um laudo dermatológico preliminar estruturado.
+            # Validação da resposta
+            if not decoded:
+                logger.warning("Validação da descrição falhou: Resposta vazia.")
+                return "A descrição visual automática não pôde ser gerada com segurança."
+            if re.search(r'<.*?>|https?://', decoded):
+                logger.warning("Validação da descrição falhou: Contém padrão inválido (HTML/URL).")
+                return "A descrição visual automática não pôde ser gerada com segurança."
+            if len(decoded.split()) <= 5:
+                logger.warning(f"Validação da descrição falhou: Resposta muito curta ({len(decoded.split())} palavras).")
+                return "A descrição visual automática não pôde ser gerada com segurança."
+            
+            return decoded
 
-    1. **Dados de Análise Visual (Descrição da Lesão):**
-    "{desc_laudo}"
+        except Exception as e:
+            logger.error(f"Falha na geração de descrição (BLIP-2): {e}", exc_info=True)
+            return "A descrição visual automática não pôde ser gerada com segurança."
 
-    2. **Dados de Classificação por IA:**
-    - Diagnóstico Principal: {diagnostico[0]['name']} (Confiança: {diagnostico[0]['confidence']*100:.1f}%)
-    - Diagnósticos Alternativos: {[f"{d['name']} ({d['confidence']*100:.1f}%)" for d in diagnostico[1:]]}
+    @clear_cuda_cache
+    def _classificar_lesao(self, image: Image.Image) -> list:
+        """Classifica a lesão e retorna as 3 principais hipóteses com suas confianças."""
+        try:
+            classifier_device = next(self.model_manager.classifier_model.parameters()).device
+            processed_image = aplicar_clahe(image).resize((224, 224))
+            inputs = self.model_manager.classifier_processor(images=processed_image, return_tensors="pt").to(classifier_device)
+            
+            with torch.no_grad():
+                logits = self.model_manager.classifier_model(**inputs).logits
+                probas = torch.nn.functional.softmax(logits, dim=-1)[0]
+                top3_conf, top3_idx = torch.topk(probas, 3)
 
-    **Estrutura do Laudo (use exatamente estas seções):**
-    - **Descrição Clínica:** (Use os dados da análise visual)
-    - **Análise Diagnóstica Automatizada:** (Interprete os resultados da classificação)
-    - **Recomendações:** (Sempre recomende uma consulta presencial com um dermatologista)
-    - **Limitações:** (Mencione que esta é uma ferramenta de auxílio e não substitui um diagnóstico médico)
-    """
-    laudo = generate_llm_text(prompt_laudo, model_manager)
+            return [
+                {"name": self.model_manager.class_mapping.get(self.model_manager.classifier_model.config.id2label[idx.item()], "Desconhecido"),
+                 "confidence": conf.item()}
+                for idx, conf in zip(top3_idx, top3_conf)
+            ]
+        except Exception as e:
+            logger.error(f"Erro na classificação da lesão: {e}", exc_info=True)
+            return []
 
-    result = {
-        "diagnostico_principal": f"{diagnostico[0]['name']} ({diagnostico[0]['confidence']*100:.1f}%)",
-        "diagnosticos_alternativos": [{
-            "nome": d['name'], "confianca": f"{d['confidence']*100:.1f}%"
-        } for d in diagnostico[1:]],
-        "descricao_lesao": descricao,
-        "laudo_completo": laudo
-    }
+    def _build_report_prompt(self, desc_laudo: str, diagnostico: list) -> tuple[str, str]:
+        """Constrói os prompts do sistema e do usuário para a geração do laudo final."""
+        diag_principal_str = f"{diagnostico[0]['name']} (Confiança: {diagnostico[0]['confidence']*100:.1f}%)"
+        diag_alt_str = ", ".join([f"{d['name']} ({d['confidence']*100:.1f}%)" for d in diagnostico[1:]]) if len(diagnostico) > 1 else "Nenhum"
+        
+        system_prompt = "Você é DermAI, um assistente de IA que gera laudos dermatológicos preliminares, seguindo estritamente a estrutura solicitada."
+        
+        user_prompt = f"""
+        Com base nos dados a seguir, gere um laudo dermatológico preliminar conciso e profissional. Preencha cada seção de forma clara.
 
-    report_path = RESULTS_DIR / f"report_{image_path.stem}_{int(time.time())}.json"
-    report_path.write_text(json.dumps(result, indent=4, ensure_ascii=False))
+        **Dados Fornecidos:**
+        - Descrição da Lesão: "{desc_laudo}"
+        - Diagnóstico Principal por IA: {diag_principal_str}
+        - Diagnósticos Alternativos por IA: {diag_alt_str}
 
-    return result
+        **Estrutura do Laudo (Preencha as seções a seguir):**
+        - **Descrição Clínica:** (Redija um parágrafo baseado na descrição da lesão fornecida.)
+        - **Análise Diagnóstica Automatizada:** (Apresente os resultados da IA. Ex: "A análise por IA sugere como principal hipótese diagnóstica um {diagnostico[0]['name']} com alta confiança. Lesões como {diag_alt_str} foram consideradas com menor probabilidade.")
+        - **Recomendações:** (Escreva um texto padrão recomendando fortemente a consulta com um dermatologista para avaliação clínica e confirmação diagnóstica.)
+        - **Limitações:** (Escreva um texto padrão informando que este é um exame de triagem por IA, não substitui a avaliação médica e o diagnóstico definitivo depende de um profissional qualificado.)
+        """
+        return system_prompt, user_prompt.strip()
+
+    def _save_report(self, result: dict, image_path: Path):
+        """Salva o resultado da análise em um arquivo JSON."""
+        report_path = RESULTS_DIR / f"report_{image_path.stem}_{int(time.time())}.json"
+        try:
+            report_path.write_text(json.dumps(result, indent=4, ensure_ascii=False))
+            logger.info(f"Relatório salvo em: {report_path}")
+        except Exception as e:
+            logger.error(f"Falha ao salvar o relatório em {report_path}: {e}", exc_info=True)
+
+    def run_analysis_pipeline(self, image_path: Path) -> dict:
+        """Orquestra a pipeline de análise de imagem: classificação, descrição e geração de laudo."""
+        try:
+            with Image.open(image_path).convert("RGB") as img:
+                future_classificacao = self.executor.submit(self._classificar_lesao, img)
+                future_descricao = self.executor.submit(self._gerar_descricao_imagem, img)
+                diagnostico = future_classificacao.result()
+                descricao = future_descricao.result()
+        except Exception as e:
+            logger.error(f"Erro ao processar imagem: {e}", exc_info=True)
+            return {"error": "Falha na análise inicial da imagem."}
+
+        if not diagnostico:
+            return {"error": "A classificação da lesão falhou."}
+
+        desc_laudo = descricao if "não pôde ser gerada" not in descricao else "A descrição visual não pôde ser gerada. A análise prossegue com base apenas na classificação."
+        
+        system_prompt, user_prompt = self._build_report_prompt(desc_laudo, diagnostico)
+        laudo = self._generate_ollama_text(system_prompt, user_prompt)
+
+        result = {
+            "diagnostico_principal": f"{diagnostico[0]['name']} (Confiança: {diagnostico[0]['confidence']*100:.1f}%)",
+            "diagnosticos_alternativos": [{"nome": d['name'], "confianca": f"{d['confidence']*100:.1f}%"} for d in diagnostico[1:]],
+            "descricao_lesao": descricao,
+            "laudo_completo": laudo
+        }
+        
+        self._save_report(result, image_path)
+        return result

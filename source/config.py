@@ -1,19 +1,16 @@
 # config.py
 from pathlib import Path
 
-# Configurações da Aplicação
-MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB
+MAX_FILE_SIZE = 20 * 1024 * 1024
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'bmp'}
 RESULTS_DIR = Path("api_results")
 
-# Configurações dos Modelos de IA
 MODEL_CONFIG = {
     "blip2": "Salesforce/blip2-opt-2.7b",
     "skin_classifier": "NeuronZero/SkinCancerClassifier",
-    "llm": "meta-llama/Llama-3.2-1B"
+    "llm": "llama3:8b" 
 }
 
-# Mapeamento de Classes de Lesões
 CLASS_MAPPING = {
     "AK": "Ceratose Actínica", "BCC": "Carcinoma Basocelular",
     "BKL": "Ceratose Benigna", "DF": "Dermatofibroma",
