@@ -1,5 +1,3 @@
-# app/services.py
-# 1. CORREÇÃO: Importar FileStorage de werkzeug.datastructures e Union de typing
 from werkzeug.datastructures import FileStorage
 from typing import Union
 
@@ -37,7 +35,6 @@ class DermatologyService:
         self.executor = ThreadPoolExecutor(max_workers=2)
         self.llm_model_name = MODEL_CONFIG.get("llm", "llama3")
 
-    # ... (os métodos _generate_ollama_text, _gerar_descricao_imagem, _classificar_lesao e _build_report_prompt permanecem inalterados) ...
     def _generate_ollama_text(self, system_prompt: str, user_prompt: str) -> str:
         try:
             response = ollama.chat(
