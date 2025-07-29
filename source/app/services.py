@@ -94,8 +94,16 @@ class DermatologyService:
         """Classifica a lesão e retorna as 3 principais hipóteses com suas confianças."""
         try:
             classifier_device = next(self.model_manager.classifier_model.parameters()).device
+            
+            # Adicione esta linha para obter o dtype do modelo dinamicamente
+            model_dtype = next(self.model_manager.classifier_model.parameters()).dtype
+
             processed_image = aplicar_clahe(image).resize((224, 224))
             inputs = self.model_manager.classifier_processor(images=processed_image, return_tensors="pt").to(classifier_device)
+            
+            # ----> LINHA DE CORREÇÃO <----
+            # Converta o tensor de entrada para o mesmo dtype do modelo
+            inputs['pixel_values'] = inputs['pixel_values'].to(model_dtype)
             
             with torch.no_grad():
                 logits = self.model_manager.classifier_model(**inputs).logits
