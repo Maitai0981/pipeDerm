@@ -1,20 +1,20 @@
 # app/routes.py
 import time
-import gc
-import torch
-import tempfile
 from pathlib import Path
 from flask import (
     Blueprint, request, jsonify, current_app, render_template, send_from_directory
 )
-from app.services import run_analysis_pipeline
+import torch
+# 1. Importar a classe de serviço, não mais a função individual
+from app.services import DermatologyService
 from config import ALLOWED_EXTENSIONS, RESULTS_DIR
 
-# Blueprint para a página principal (sem prefixo)
 main_bp = Blueprint('main', __name__)
-
-# Blueprint para as rotas da API (com prefixo /api)
 api_bp = Blueprint('api', __name__)
+
+def _is_allowed_file(filename: str) -> bool:
+    """Verifica se a extensão do arquivo é permitida."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @main_bp.route("/")
 def home():
@@ -24,38 +24,35 @@ def home():
 @api_bp.route('/predict', methods=['POST'])
 def predict():
     """Endpoint para receber uma imagem e retornar a análise."""
-    start_time = time.time()
-    
     if "image" not in request.files:
         return jsonify({"error": "Nenhum arquivo de imagem enviado"}), 400
         
     image_file = request.files["image"]
-    filename = image_file.filename
-    if not filename or not ('.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS):
+    if not image_file.filename or not _is_allowed_file(image_file.filename):
         return jsonify({"error": "Tipo de arquivo inválido ou não permitido"}), 400
     
-    temp_path = None
+    start_time = time.time()
     try:
-        # Salva o arquivo temporariamente para análise
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg", dir=RESULTS_DIR) as tmp:
-            temp_path = Path(tmp.name)
-            image_file.save(temp_path)
+        # 2. Instanciar o serviço a partir do model_manager da aplicação
+        model_manager = current_app.model_manager
+        service = DermatologyService(model_manager)
 
-        result = run_analysis_pipeline(temp_path, current_app.model_manager)
+        # 3. Chamar o método da instância de serviço, passando o stream de bytes
+        #    Não é mais necessário salvar o arquivo temporário manualmente aqui.
+        #    O serviço pode lidar com o objeto de imagem diretamente.
+        result = service.run_analysis_pipeline(image_file)
+        
+        # Adicionar metadados da requisição ao resultado
         result["tempo_processamento"] = f"{time.time() - start_time:.2f} segundos"
+        
         return jsonify(result), 200
         
     except Exception as e:
         current_app.logger.error(f"Erro no endpoint de predição: {e}", exc_info=True)
-        return jsonify({"error": f"Erro interno no servidor: {e}"}), 500
-        
-    finally:
-        if temp_path and temp_path.exists():
-            temp_path.unlink()
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+        return jsonify({"error": f"Erro interno no servidor: {str(e)}"}), 500
+    # 4. Bloco 'finally' removido por ser redundante
 
+# ... (outras rotas como system_status e get_result_file permanecem iguais)
 @api_bp.route("/system", methods=["GET"])
 def system_status():
     """Retorna o status do sistema e dos modelos de IA."""
@@ -66,7 +63,7 @@ def system_status():
         "models_loaded": {
             "blip2": mm.blip2_model is not None,
             "skin_classifier": mm.classifier_model is not None,
-            "llm": mm.llm_model is not None
+            # "llm" foi removido pois é via Ollama, não um modelo carregado
         }
     }
     return jsonify(status)
