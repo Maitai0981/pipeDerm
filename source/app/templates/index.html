@@ -41,11 +41,12 @@
         <div id="response-area" class="mt-8 bg-blue-50 border border-blue-200 rounded-md p-6 min-h-[150px] text-gray-700 whitespace-pre-wrap break-words text-sm"></div>
     </div>
 
-    <script>
+<script>
         const uploadForm = document.getElementById('uploadForm');
         const imageInput = document.getElementById('imageInput');
         const responseArea = document.getElementById('response-area');
 
+        // O endpoint da API está correto.
         const API_URL = '/api/predict';
 
         function sanitizeHTML(str) {
@@ -62,14 +63,10 @@
                 responseArea.innerHTML = `<p class="text-red-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Por favor, selecione uma imagem.</p>`;
                 return;
             }
-
-            // Validate file size (max 20MB)
             if (file.size > 20 * 1024 * 1024) {
                 responseArea.innerHTML = `<p class="text-red-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Arquivo muito grande (${(file.size/(1024*1024)).toFixed(1)}MB). Máximo permitido: 20MB.</p>`;
                 return;
             }
-
-            // Validate file type
             const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/bmp'];
             if (!allowedTypes.includes(file.type)) {
                 responseArea.innerHTML = `<p class="text-red-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Tipo de arquivo não permitido. Use PNG, JPG, JPEG ou BMP.</p>`;
@@ -79,6 +76,8 @@
             responseArea.innerHTML = `<p class="text-blue-600 italic flex items-center justify-center space-x-2"><i class="fas fa-spinner fa-spin"></i><span>Enviando e analisando imagem...</span></p>`;
 
             const formData = new FormData();
+            // A API espera o nome 'image', mas o seu formulário tem o id 'imageInput'. 
+            // Para consistência, vamos garantir que o nome seja 'image'.
             formData.append('image', file);
 
             try {
@@ -96,45 +95,30 @@
 
                 const result = await response.json();
 
-                // Construir texto do diagnóstico principal e alternativas
-                let diagnosticoHTML = `<p class="font-semibold text-lg text-gray-800 mb-2">Diagnóstico Principal: <span class="text-blue-700">${sanitizeHTML(result.diagnostico.principal)}</span> (<span class="font-normal">${sanitizeHTML(result.diagnostico.confianca)}</span>)</p>`;
-                if (result.diagnostico.alternativas && result.diagnostico.alternativas.length > 0) {
+                // 1. Acessar as chaves corretas do JSON (sem o aninhamento "diagnostico")
+                let diagnosticoHTML = `<p class="font-semibold text-lg text-gray-800 mb-2">Diagnóstico Principal: <span class="text-blue-700">${sanitizeHTML(result.diagnostico_principal)}</span></p>`;
+                
+                // 2. Usar "diagnosticos_alternativos"
+                if (result.diagnosticos_alternativos && result.diagnosticos_alternativos.length > 0) {
                     diagnosticoHTML += `<p class="font-semibold text-gray-700 mb-4">Diagnósticos Alternativos:</p><ul class="list-disc list-inside space-y-1 mb-6">`;
-                    for (const alt of result.diagnostico.alternativas) {
+                    for (const alt of result.diagnosticos_alternativos) {
+                        // 3. Acessar as chaves corretas "nome" e "confianca" dentro do loop
                         diagnosticoHTML += `<li><span class="text-gray-800 font-medium">${sanitizeHTML(alt.nome)}</span> - <span class="text-gray-600">${sanitizeHTML(alt.confianca)}</span></li>`;
                     }
                     diagnosticoHTML += `</ul>`;
                 }
 
-                // Descrição da lesão
                 const descricaoHTML = `<div class="mb-6"><h2 class="text-xl font-semibold text-gray-800 mb-2">Descrição da Lesão</h2><p class="whitespace-pre-line text-gray-700">${sanitizeHTML(result.descricao_lesao)}</p></div>`;
-
-                // Laudo completo
                 const laudoHTML = `<div><h2 class="text-xl font-semibold text-gray-800 mb-2">Laudo Completo</h2><pre class="whitespace-pre-line text-gray-700 text-sm bg-white p-4 rounded border border-gray-300 max-h-64 overflow-y-auto">${sanitizeHTML(result.laudo_completo)}</pre></div>`;
 
-                // Imagens e JSON links
-                let recursosHTML = '';
-                if (result.recursos) {
-                    recursosHTML = `<div class="mt-6 space-y-4">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Recursos</h2>
-                        <div class="flex flex-col sm:flex-row sm:space-x-6 space-y-4 sm:space-y-0">
-                            <div class="flex-1 text-center">
-                                <p class="font-medium mb-2">Imagem Original</p>
-                                <img src="${sanitizeHTML(result.recursos.imagem_original)}" alt="Imagem original da lesão cutânea enviada para análise" class="mx-auto rounded shadow max-h-48 object-contain" />
-                            </div>
-                            <div class="flex-1 text-center">
-                                <p class="font-medium mb-2">Imagem Processada (CLAHE)</p>
-                                <img src="${sanitizeHTML(result.recursos.imagem_processada)}" alt="Imagem processada da lesão cutânea com realce de contraste CLAHE" class="mx-auto rounded shadow max-h-48 object-contain" />
-                            </div>
-                        </div>
-                        <p class="mt-4 text-center"><a href="${sanitizeHTML(result.recursos.json_metadata)}" target="_blank" class="text-blue-600 hover:underline font-medium"><i class="fas fa-file-alt mr-1"></i>Download do JSON com metadados</a></p>
-                    </div>`;
-                }
+                // 4. Remover a seção de "Recursos" que não é mais enviada pela API refatorada.
+                
+                // 5. O campo tempo_processamento é adicionado na rota, então deve funcionar.
+                const metaInfo = `<p class="mt-4 text-gray-500 text-sm italic text-center">Tempo de processamento: ${sanitizeHTML(result.tempo_processamento || 'N/A')}</p>`;
+                
+                // Monta a resposta final
+                responseArea.innerHTML = diagnosticoHTML + descricaoHTML + laudoHTML + metaInfo;
 
-                // Tempo e tamanho
-                const metaInfo = `<p class="mt-4 text-gray-500 text-sm italic text-center">Tempo de processamento: ${sanitizeHTML(result.tempo_processamento)} | Tamanho da imagem: ${sanitizeHTML(result.tamanho_imagem)}</p>`;
-
-                responseArea.innerHTML = diagnosticoHTML + descricaoHTML + laudoHTML + recursosHTML + metaInfo;
 
             } catch (error) {
                 responseArea.innerHTML = `<p class="text-red-600 font-semibold"><i class="fas fa-times-circle mr-2"></i>Erro na análise: ${sanitizeHTML(error.message)}</p>`;

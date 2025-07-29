@@ -1,4 +1,8 @@
 # app/services.py
+# 1. CORREÇÃO: Importar FileStorage de werkzeug.datastructures e Union de typing
+from werkzeug.datastructures import FileStorage
+from typing import Union
+
 import torch
 import re
 import json
@@ -33,6 +37,7 @@ class DermatologyService:
         self.executor = ThreadPoolExecutor(max_workers=2)
         self.llm_model_name = MODEL_CONFIG.get("llm", "llama3")
 
+    # ... (os métodos _generate_ollama_text, _gerar_descricao_imagem, _classificar_lesao e _build_report_prompt permanecem inalterados) ...
     def _generate_ollama_text(self, system_prompt: str, user_prompt: str) -> str:
         try:
             response = ollama.chat(
@@ -129,19 +134,34 @@ class DermatologyService:
         """
         return system_prompt, user_prompt.strip()
 
-    def _save_report(self, result: dict, image_path: Path):
+
+    def _save_report(self, result: dict, image_name: str):
         """Salva o resultado da análise em um arquivo JSON."""
-        report_path = RESULTS_DIR / f"report_{image_path.stem}_{int(time.time())}.json"
+        # Modificado para aceitar o nome base da imagem
+        report_path = RESULTS_DIR / f"report_{image_name}_{int(time.time())}.json"
         try:
             report_path.write_text(json.dumps(result, indent=4, ensure_ascii=False))
             logger.info(f"Relatório salvo em: {report_path}")
         except Exception as e:
             logger.error(f"Falha ao salvar o relatório em {report_path}: {e}", exc_info=True)
 
-    def run_analysis_pipeline(self, image_path: Path) -> dict:
-        """Orquestra a pipeline de análise de imagem: classificação, descrição e geração de laudo."""
+    # 2. MELHORIA: Anotação de tipo mais explícita com Union
+    def run_analysis_pipeline(self, image_source: Union[FileStorage, Path]) -> dict:
+        """
+        Orquestra a pipeline de análise de imagem: classificação, descrição e geração de laudo.
+        Aceita um caminho de arquivo (Path) ou um stream de arquivo (FileStorage).
+        """
+        image_name = "unknown"
         try:
-            with Image.open(image_path).convert("RGB") as img:
+            # Identifica se a fonte é um caminho ou um stream e abre a imagem
+            if isinstance(image_source, Path):
+                image_name = image_source.stem
+                img = Image.open(image_source).convert("RGB")
+            else: # Assume que é um objeto FileStorage do Flask
+                image_name = Path(image_source.filename).stem
+                img = Image.open(image_source.stream).convert("RGB")
+
+            with img:
                 future_classificacao = self.executor.submit(self._classificar_lesao, img)
                 future_descricao = self.executor.submit(self._gerar_descricao_imagem, img)
                 diagnostico = future_classificacao.result()
@@ -165,5 +185,6 @@ class DermatologyService:
             "laudo_completo": laudo
         }
         
-        self._save_report(result, image_path)
+        # O salvamento do relatório usa o nome da imagem extraído
+        self._save_report(result, image_name)
         return result
