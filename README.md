@@ -1,62 +1,456 @@
-# pipeDerm
+# PipeDerm - Sistema de Análise Dermatológica com IA
 
-**pipeDerm** é um sistema de análise de lesões cutâneas assistida por Inteligência Artificial. A aplicação utiliza uma API robusta para processar imagens de lesões de pele, fornecendo uma descrição clínica, classificação de possíveis condições e um laudo preliminar estruturado.
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-3.1.1-green.svg)](https://flask.palletsprojects.com/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.5.1-orange.svg)](https://pytorch.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Visão Geral
+## 📋 Descrição
 
-O projeto consiste em uma API construída com Flask que orquestra um pipeline de múltiplos modelos de IA para realizar uma análise dermatológica completa a partir de uma única imagem. O sistema foi projetado para ser uma ferramenta de auxílio diagnóstico, otimizada para performance e com uma arquitetura modular.
+O **PipeDerm** é um sistema de análise dermatológica que combina modelos de Inteligência Artificial para classificar lesões cutâneas e gerar laudos médicos preliminares. O sistema utiliza:
 
-## Recursos
+- **Classificação de Imagens**: Modelo especializado em dermatologia para identificar tipos de lesões
+- **Descrição Visual**: Geração automática de descrições detalhadas das lesões
+- **Laudos Médicos**: Geração de relatórios médicos preliminares
+- **API REST**: Interface completa para integração com outros sistemas
+- **Documentação Swagger**: Documentação automática da API
+- **Monitoramento**: Sistema de métricas e health checks
 
--   **Pipeline Multi-Modelo:** Integra modelos de IA especializados para classificação, descrição visual e geração de laudos.
--   **API RESTful:** Oferece endpoints para predição, consulta de status do sistema e acesso aos resultados.
--   **Otimização de Hardware:** Detecta e utiliza GPU (CUDA) para aceleração, com fallback para CPU. Aplica quantização de modelos (`bitsandbytes`) para reduzir o consumo de memória VRAM.
--   **Processamento Assíncrono:** Utiliza `ThreadPoolExecutor` para executar tarefas de análise em paralelo, melhorando o tempo de resposta.
--   **Interface de Teste:** Inclui uma página web simples para upload de imagens e visualização dos resultados em tempo real.
--   **Limpeza Automática:** Um agendador (`apscheduler`) realiza a limpeza periódica de arquivos de resultados antigos para gerenciar o espaço de armazenamento.
+## 🚀 Funcionalidades
 
-## Como Funciona
+### ✨ Principais Recursos
+- **Análise de Imagens**: Upload e processamento de imagens dermatológicas
+- **Classificação Automática**: Identificação de 9 tipos diferentes de lesões cutâneas
+- **Descrição Visual**: Geração automática de descrições detalhadas
+- **Laudos Médicos**: Criação de relatórios médicos preliminares
+- **Interface Web**: Interface amigável para upload e visualização de resultados
+- **API REST**: Endpoints para integração com outros sistemas
+- **Documentação Swagger**: Interface interativa para testar a API
+- **Métricas em Tempo Real**: Monitoramento de performance e uso
+- **Validação Avançada**: Verificação rigorosa de arquivos de entrada
+- **Rate Limiting**: Proteção contra abuso da API
 
-O fluxo de análise da aplicação segue os seguintes passos:
+### 🎯 Tipos de Lesões Suportadas
+- **AK**: Ceratose Actínica
+- **BCC**: Carcinoma Basocelular
+- **BKL**: Ceratose Benigna
+- **DF**: Dermatofibroma
+- **MEL**: Melanoma
+- **NV**: Nevo Melanocítico
+- **SCC**: Carcinoma Espinocelular
+- **VASC**: Lesão Vascular
+- **SEB**: Queratose Seborreica
 
-1.  **Upload da Imagem:** O usuário envia uma imagem de uma lesão cutânea através da interface web ou diretamente para o endpoint `/api/predict`.
-2.  **Pré-processamento:** A imagem passa por um tratamento de otimização de contraste (CLAHE) para realçar características importantes.
-3.  **Análise Paralela:**
-    * **Classificação:** Um modelo de classificação de imagens (`NeuronZero/SkinCancerClassifier`) analisa a imagem e retorna as hipóteses diagnósticas mais prováveis com seus respectivos scores de confiança.
-    * **Descrição Visual:** Um modelo de visão-linguagem (`Salesforce/blip2-opt-2.7b`) gera uma descrição textual detalhada da morfologia, cor, bordas e superfície da lesão.
-4.  **Geração do Laudo:** Os resultados da classificação e a descrição visual são enviados para um Modelo de Linguagem Grande (LLM) via Ollama, que gera um laudo médico preliminar coeso e estruturado.
-5.  **Retorno do Resultado:** A API retorna um JSON completo contendo o diagnóstico principal, diagnósticos alternativos, a descrição da lesão e o laudo gerado.
+## 🛠️ Tecnologias Utilizadas
 
-## Modelos Utilizados
+### Backend
+- **Flask**: Framework web para API
+- **PyTorch**: Framework de deep learning
+- **Transformers**: Biblioteca para modelos de IA
+- **Pillow**: Processamento de imagens
+- **OpenCV**: Processamento avançado de imagens
+- **Gunicorn**: Servidor WSGI para produção
 
--   **Descrição Visual:** `Salesforce/blip2-opt-2.7b`
--   **Classificação de Lesões:** `NeuronZero/SkinCancerClassifier`
--   **Geração de Laudos (LLM):** `llama3:8b` (ou outro modelo configurado via Ollama)
+### IA e Modelos
+- **Skin Cancer Classifier**: Modelo especializado em dermatologia
+- **LLaVA**: Modelo multimodal para descrição de imagens
+- **Llama 3**: Modelo de linguagem para geração de laudos
 
-## Instalação e Configuração
+### Infraestrutura
+- **Ollama**: Servidor local para modelos de linguagem
+- **CUDA**: Aceleração GPU (opcional)
+- **APScheduler**: Agendamento de tarefas
+- **Flasgger**: Documentação automática da API
 
-1.  **Clone o repositório:**
-    ```bash
-    git clone [https://github.com/maitai0981/pipederm.git](https://github.com/maitai0981/pipederm.git)
-    cd pipederm/source
-    ```
+## 📦 Instalação
 
-2.  **Crie um ambiente virtual e instale as dependências:**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # No Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
+### Pré-requisitos
 
-3.  **Instale e execute o Ollama:**
-    É necessário ter o [Ollama](https://ollama.com/) instalado e em execução para a geração dos laudos. Após instalar, puxe o modelo LLM:
-    ```bash
-    ollama pull llama3:8b
-    ```
+1. **Python 3.8+**
+2. **Git**
+3. **Ollama** (para modelos de linguagem)
 
-## Como Executar
+Para mais detalhes, consulte: [WSL_SETUP.md](WSL_SETUP.md)
 
-Com o ambiente configurado e o Ollama em execução, inicie a aplicação Flask a partir do diretório `source`:
+### 1. Clone o Repositório
+```bash
+git clone https://github.com/seu-usuario/pipederm.git
+cd pipederm
+```
+
+### 2. Instalação do Ollama
+
+#### Windows
+```bash
+# Baixe e instale do site oficial
+# https://ollama.ai/download
+```
+
+#### Linux/macOS/WSL
+```bash
+curl -fsSL https://ollama.ai/install.sh | sh
+```
+
+### 3. Configuração Manual (Alternativa)
+
+#### Criar Ambiente Virtual
+```bash
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# Linux/macOS
+source venv/bin/activate
+```
+
+#### Instalar Dependências
+```bash
+pip install -r requirements.txt
+```
+
+#### Baixar Modelos Ollama
+```bash
+# Iniciar servidor Ollama
+ollama serve
+
+# Em outro terminal, baixar os modelos necessários
+ollama pull llama3:8b
+ollama pull llava
+```
+
+
+### 📋 **Passo a Passo Detalhado**
+
+#### 1. Pré-requisitos
+```bash
+# Verificar Python
+python --version  # Deve ser 3.8+
+
+# Verificar pip
+pip --version
+
+# Instalar dependências
+pip install -r requirements.txt
+```
+
+#### 2. Configurar Ollama
+```bash
+# Iniciar Ollama
+ollama serve
+
+# Em outro terminal, baixar modelos
+ollama pull llama3:8b
+ollama pull llava
+```
+
+#### 3. Executar Aplicação
+```bash
+# Desenvolvimento
+python run.py
+```
+
+### 🌐 **Acessos Disponíveis**
+
+| Funcionalidade | URL | Descrição |
+|----------------|-----|-----------|
+| **Interface Web** | `http://localhost:5000` | Upload de imagens e visualização |
+| **Documentação API** | `http://localhost:5000/apidocs/` | Swagger UI interativo |
+| **Health Check** | `http://localhost:5000/api/health` | Status do sistema |
+| **Métricas** | `http://localhost:5000/api/metrics` | Performance e uso |
+| **Status Sistema** | `http://localhost:5000/api/system` | GPU, modelos, Ollama |
+
+### 🐛 **Troubleshooting Rápido**
+
+#### Erro: "ModuleNotFoundError"
+```bash
+# Reinstalar dependências
+pip install -r requirements.txt
+```
+
+#### Erro: "Ollama não encontrado"
+```bash
+# Verificar se está rodando
+curl http://localhost:11434/api/tags
+
+# Se não estiver, inicie:
+ollama serve
+```
+
+
+#### 🔧 **Problema: LLaVA retorna descrições insatisfatórias**
+
+Se o LLaVA está retornando descrições como "Lesão cutânea com dimensões 600x450 pixels, apresentando coloração complexa...", execute:
 
 ```bash
-python run.py --host 0.0.0.0 --port 5000
+# 1. Verificar modelos disponíveis
+ollama list
+
+# 2. Reinstalar LLaVA se necessário
+ollama rm llava
+ollama pull llava
+```
+
+**Soluções específicas:**
+
+1. **Verificar versão do LLaVA**:
+   ```bash
+   ollama show llava
+   ```
+
+2. **Usar versão específica**:
+   ```bash
+   ollama pull llava:latest
+   ```
+
+3. **Verificar recursos do sistema**:
+   ```bash
+   # Memória disponível
+   free -h
+   
+   # GPU (se disponível)
+   nvidia-smi
+   ```
+
+4. **Ajustar configurações**:
+   ```bash
+   # Editar config.py para aumentar timeout
+   OLLAMA_CONFIG = {
+       "base_url": "http://localhost:11434",
+       "timeout": 1000,  # Aumentar para 1000s
+       "max_retries": 5   # Aumentar tentativas
+   }
+   ```
+
+5. **Testar com imagem simples**:
+   ```bash
+   # Criar imagem de teste
+   python -c "
+   from PIL import Image, ImageDraw
+   img = Image.new('RGB', (100, 100), 'red')
+   draw = ImageDraw.Draw(img)
+   draw.ellipse([20, 20, 80, 80], fill='brown')
+   img.save('test.jpg')
+   "
+   
+   # Testar LLaVA
+   ollama run llava "Descreva esta imagem" test.jpg
+   ```
+
+### 📊 **Monitoramento**
+
+#### Verificar Status
+```bash
+# Health check
+curl http://localhost:5000/api/health
+
+# Métricas
+curl http://localhost:5000/api/metrics
+
+# Status do sistema
+curl http://localhost:5000/api/system
+```
+
+## 📖 Uso
+
+### Interface Web
+1. Acesse `http://localhost:5000`
+2. Faça upload de uma imagem dermatológica
+3. Aguarde o processamento
+4. Visualize os resultados
+
+### Documentação da API
+1. Acesse `http://localhost:5000/apidocs/`
+2. Explore os endpoints disponíveis
+3. Teste as funcionalidades diretamente na interface
+
+### API REST
+
+#### Endpoint de Análise
+```bash
+curl -X POST http://localhost:5000/api/predict \
+  -F "image=@sua_imagem.jpg"
+```
+
+#### Resposta da API
+```json
+{
+  "diagnostico_principal": "Nevo Melanocítico (Confiança: 99.6%)",
+  "diagnosticos_alternativos": [
+    {
+      "nome": "Melanoma",
+      "confianca": "0.4%"
+    }
+  ],
+  "descricao_lesao": "Lesão pigmentada com bordas regulares...",
+  "laudo_completo": "**Laudo Dermatológico Preliminar**\n\n**Descrição Clínica:**...",
+  "tempo_processamento": "2.34 segundos",
+  "request_id": "a1b2c3d4"
+}
+```
+
+#### Status do Sistema
+```bash
+curl http://localhost:5000/api/system
+```
+
+#### Métricas
+```bash
+curl http://localhost:5000/api/metrics
+```
+
+## ⚙️ Configuração
+
+### Arquivo de Configuração (`config.py`)
+
+```python
+# Configurações de Modelos
+MODEL_CONFIG = {
+    "description_model": "llava:7b", 
+    "skin_classifier": "NeuronZero/SkinCancerClassifier",
+    "llm": "llama3.1:8b" 
+}
+# Configurações Ollama
+OLLAMA_CONFIG = {
+    "base_url": "http://localhost:11434",
+    "timeout": 1000,
+    "max_retries": 3
+}
+```
+
+### Variáveis de Ambiente
+```bash
+# Configurações opcionais
+export FLASK_ENV=production
+export CUDA_VISIBLE_DEVICES=0  # Para GPU específica
+export SECRET_KEY=your-secret-key
+```
+
+## 🧪 Testes
+
+### Executar Testes Abrangentes
+```bash
+python test_comprehensive.py
+```
+
+### Testes Manuais
+```bash
+# Testar conectividade Ollama
+curl http://localhost:11434/api/tags
+
+# Testar API
+curl http://localhost:5000/api/health
+curl http://localhost:5000/api/metrics
+```
+
+## 🔧 Troubleshooting
+
+### Problemas Comuns
+
+#### 1. Ollama não está rodando
+```bash
+# Verificar se o serviço está ativo
+ollama serve
+
+# Verificar modelos disponíveis
+ollama list
+```
+
+#### 2. Erro de GPU
+```bash
+# Forçar uso de CPU
+export CUDA_VISIBLE_DEVICES=""
+
+# Ou modificar config.py
+device = torch.device("cpu")
+```
+
+#### 3. Erro de Memória
+```bash
+# Limpar cache CUDA
+python -c "import torch; torch.cuda.empty_cache()"
+
+# Reduzir batch size em config.py
+```
+
+#### 4. Dependências não encontradas
+```bash
+# Reinstalar dependências
+pip install --upgrade -r requirements.txt
+
+# Verificar versão Python
+python --version
+```
+
+#### 5. Erro de Swagger
+```bash
+# Verificar se flasgger está instalado
+pip install flasgger
+
+# Verificar logs
+tail -f logs/gunicorn_error.log
+```
+
+## 📊 Monitoramento
+
+### Logs
+Os logs são salvos automaticamente com informações sobre:
+- Carregamento de modelos
+- Processamento de imagens
+- Erros e exceções
+- Performance
+
+### Métricas Disponíveis
+- Tempo de processamento
+- Uso de GPU/CPU
+- Taxa de sucesso
+- Erros por endpoint
+- Número total de requisições
+
+### Endpoints de Monitoramento
+- `/api/health` - Health check
+- `/api/system` - Status do sistema
+- `/api/metrics` - Métricas de performance
+
+
+### Padrões de Código
+- Seguir PEP 8
+- Adicionar docstrings
+- Incluir testes
+- Atualizar documentação
+
+## 📄 Licença
+
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+## 🙏 Agradecimentos
+
+- **Hugging Face** pelos modelos de IA
+- **Ollama** pelo servidor de modelos locais
+- **Comunidade Open Source** pelas bibliotecas utilizadas
+
+## 📈 Roadmap
+
+### Versão 1.1
+- [x] Interface de documentação Swagger
+- [x] Sistema de métricas
+- [x] Validação avançada de arquivos
+- [x] Scripts de deploy automatizados
+- [ ] Sistema de cache Redis
+- [ ] Autenticação JWT
+
+### Versão 1.2
+- [ ] Processamento em lote
+- [ ] API GraphQL
+- [ ] Suporte a múltiplos idiomas
+- [ ] Dashboard de administração
+
+### Versão 2.0
+- [ ] Modelos customizados
+- [ ] Integração com PACS
+- [ ] Análise temporal
+- [ ] Machine Learning contínuo
+
+---
+
+**⚠️ Aviso Legal**: Este sistema é destinado apenas para triagem e não substitui a avaliação médica profissional. Sempre consulte um dermatologista para diagnóstico definitivo. 
