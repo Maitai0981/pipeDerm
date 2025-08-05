@@ -59,8 +59,6 @@ O **PipeDerm** é um sistema de análise dermatológica que combina modelos de I
 ### Infraestrutura
 - **Ollama**: Servidor local para modelos de linguagem
 - **CUDA**: Aceleração GPU (opcional)
-- **APScheduler**: Agendamento de tarefas
-- **Flasgger**: Documentação automática da API
 
 ## 📦 Instalação
 
@@ -69,8 +67,6 @@ O **PipeDerm** é um sistema de análise dermatológica que combina modelos de I
 1. **Python 3.8+**
 2. **Git**
 3. **Ollama** (para modelos de linguagem)
-
-Para mais detalhes, consulte: [WSL_SETUP.md](WSL_SETUP.md)
 
 ### 1. Clone o Repositório
 ```bash
