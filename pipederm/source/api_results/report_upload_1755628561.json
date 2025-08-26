@@ -1,0 +1,11 @@
+{
+  "classificacao": "BENIGNO",
+  "confianca": "75.0%",
+  "prioridade": "ROTINA",
+  "diagnostico_principal": "Benigno (Confiança: 75.0%)",
+  "diagnostico_alternativo": "Maligno (Confiança: 25.0%)",
+  "descricao_lesao": "Descrição (não estruturada):\nCircular, pequena, homogênea, bem delimitada, lisa, plana.",
+  "laudo_completo": "**DESCRIÇÃO CLÍNICA:**\nA lesão apresenta características de uma mácula pequena, homogênea e bem delimitada, com superfície lisa e plana. A descrição sugere uma lesão benigna, mas é importante considerar a possibilidade de outras condições dermatológicas. A análise morfológica não permite estabelecer um diagnóstico definitivo.\n\n**ANÁLISE COMPUTACIONAL:**\nA análise computacional realizada pela IA indicou que a hipótese principal é uma lesão benigna, com confiança de 75,0%. A metodologia utilizada foi baseada em algoritmos de aprendizado de máquina treinados em grandes conjuntos de dados dermatológicos. É importante destacar que essa análise é preliminar e não substitui a avaliação médica presencial.\n\n**CORRELAÇÃO CLÍNICO-PATOLÓGICA:**\nOs achados morfológicos sugerem uma lesão benigna, mas é fundamental considerar as possibilidades de outras condições dermatológicas, como neoplasias benignas ou malignas. A ausência de características sugestivas de inflamação ou infecção diminui a probabilidade de lesões infectadas ou inflamatórias.\n\n**RECOMENDAÇÕES MÉDICAS:**\nDevido à natureza preliminar da análise, é fundamental que o paciente seja encaminhado para avaliação médica presencial por um dermatologista. Se necessário, podem ser solicitados exames complementares para confirmar o diagnóstico.\n\n**LIMITAÇÕES E DISCLAIMER:**\nEssa análise é uma triagem realizada por IA e não substitui a avaliação médica presencial. A confirmação diagnóstica requer avaliação médica presencial, pois apenas essa pode estabelecer um diagnóstico definitivo.",
+  "ollama_available": true,
+  "modelo_utilizado": "hasibzunair/melanet (Classificação Binária)"
+}

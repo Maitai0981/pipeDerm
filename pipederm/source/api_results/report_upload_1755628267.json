@@ -1,0 +1,11 @@
+{
+  "classificacao": "BENIGNO",
+  "confianca": "75.0%",
+  "prioridade": "ROTINA",
+  "diagnostico_principal": "Benigno (Confiança: 75.0%)",
+  "diagnostico_alternativo": "Maligno (Confiança: 25.0%)",
+  "descricao_lesao": "Erro: Não foi possível gerar descrição da imagem. LLaVA não respondeu adequadamente.",
+  "laudo_completo": "**DESCRIÇÃO CLÍNICA:**\nA análise morfológica automatizada sugere a presença de uma lesão cutânea caracterizada por alterações na textura e cor da pele, possivelmente com bordos definidos. A descrição não permite uma classificação precisa, mas pode sugerir alterações benignas ou malignas. É importante realizar uma avaliação mais detalhada para determinar a natureza exata da lesão.\n\n**ANÁLISE COMPUTACIONAL:**\nA análise computacional realizada por IA apresentou resultado de 75% de confiança em hipótese principal de benignidade e 25% de confiança em hipótese alternativa de malignidade. A metodologia utilizada foi baseada em classificação automatizada, com limitações associadas à falta de descrição visual detalhada da lesão.\n\n**CORRELAÇÃO CLÍNICO-PATOLÓGICA:**\nOs achados morfológicos sugerem uma possível lesão benigna, mas a presença de alterações na textura e cor da pele pode também ser compatível com processos malignos. É importante considerar diagnósticos diferenciais relevantes, como neoplasias benignas ou malignas, e realizar exames complementares se necessário.\n\n**RECOMENDAÇÕES MÉDICAS:**\nEncaminhamento para avaliação dermatológica especializada é recomendado para confirmação diagnóstica. É importante realizar uma avaliação médica presencial para determinar a natureza exata da lesão e estabelecer um plano de tratamento adequado.\n\n**LIMITAÇÕES E DISCLAIMER:**\nEssa análise preliminar por IA não substitui a avaliação médica presencial, sendo necessária confirmação diagnóstica através de avaliação médica. A precisão desta análise depende da qualidade dos dados fornecidos e pode ter limitações associadas à falta de descrição visual detalhada da lesão.",
+  "ollama_available": true,
+  "modelo_utilizado": "hasibzunair/melanet (Classificação Binária)"
+}

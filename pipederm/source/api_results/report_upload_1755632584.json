@@ -1,0 +1,11 @@
+{
+  "classificacao": "BENIGNO",
+  "confianca": "75.0%",
+  "prioridade": "ROTINA",
+  "diagnostico_principal": "Benigno (Confiança: 75.0%)",
+  "diagnostico_alternativo": "Maligno (Confiança: 25.0%)",
+  "descricao_lesao": "Descrição (não estruturada):\nCircular, pequena, homogênea, bem delimitada, lisa, plana.",
+  "laudo_completo": "**DESCRIÇÃO CLÍNICA:**\nA lesão apresenta características de uma mácula pequena, homogênea e bem delimitada, com superfície lisa e plana. A circunferência definida sugere uma lesão benigna. A ausência de alterações anormais na região circundante.\n\n**ANÁLISE COMPUTACIONAL:**\nA análise computacional realizada por IA indicou uma hipótese principal de natureza benigna (Confiança: 75,0%), com uma hipótese alternativa de natureza maligna (25,0%). É importante destacar que essa é uma análise preliminar e não substitui a avaliação médica presencial. A metodologia utilizada foi baseada em algoritmos de aprendizado de máquina treinados em grandes conjuntos de dados dermatológicos.\n\n**CORRELAÇÃO CLÍNICO-PATOLÓGICA:**\nAs características morfológicas da lesão, como sua homogeneidade e superfície lisa, são mais comuns em lesões benignas. No entanto, a ausência de alterações anormais na região circundante não é suficiente para excluir uma lesão maligna. É importante considerar as características clínicas do paciente e os achados adicionais que possam estar presentes.\n\n**RECOMENDAÇÕES MÉDICAS:**\nDevido à natureza preliminar da análise, é recomendável encaminhar o paciente a um dermatologista para uma avaliação médica presencial. Além disso, pode ser necessário realizar exames complementares (como biópsia ou imagem) para confirmar o diagnóstico. É importante que o paciente seja acompanhado de perto e que haja um seguimento adequado.\n\n**LIMITAÇÕES E DISCLAIMER:**\nEssa análise é uma ferramenta de triagem e não substitui a avaliação médica presencial. A confirmação diagnóstica requer avaliação médica presencial, pois essa análise pode ter limitações em detectar alterações anormais ou lesões atípicas.",
+  "ollama_available": true,
+  "modelo_utilizado": "hasibzunair/melanet (Classificação Binária)"
+}

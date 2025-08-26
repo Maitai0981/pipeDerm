@@ -1,0 +1,11 @@
+{
+  "classificacao": "BENIGNO",
+  "confianca": "75.0%",
+  "prioridade": "ROTINA",
+  "diagnostico_principal": "Benigno (Confiança: 75.0%)",
+  "diagnostico_alternativo": "Maligno (Confiança: 25.0%)",
+  "descricao_lesao": "Descrição (não estruturada):\nCircular, pequena, homogênea, bem delimitada, lisa, plana.",
+  "laudo_completo": "**DESCRIÇÃO CLÍNICA:**\nA lesão descrita é uma mácula pequena, homogênea e bem delimitada, com superfície lisa e plana. Características morfológicas sugerem uma possível lesão benigna, mas necessitam de avaliação mais detalhada para excluir outras possibilidades.\n\n**ANÁLISE COMPUTACIONAL:**\nA análise computacional realizada por IA sugere que a lesão seja benigna com confiança de 75,0%, enquanto hipótese alternativa é malignidade com confiança de 25,0%. É importante destacar que essa é uma análise preliminar e não substitui a avaliação médica presencial.\n\n**CORRELAÇÃO CLÍNICO-PATOLÓGICA:**\nA mácula homogênea e bem delimitada pode sugerir lesões benignas como nevos ou melanocitoma, mas é importante considerar outras possibilidades, incluindo lesões malignas. A ausência de características sugestivas de malignidade não exclui essa hipótese.\n\n**RECOMENDAÇÕES MÉDICAS:**\nEncaminhamento para dermatologista especializado em dermatologia por meio de consulta agendada. Recomenda-se avaliação mais detalhada da lesão, incluindo possível biópsia, para confirmação diagnóstica.\n\n**LIMITAÇÕES E DISCLAIMER:**\nEssa análise é uma triagem preliminar realizada por IA e não substitui a avaliação médica presencial. Confirmação diagnóstica requer avaliação médica presencial.",
+  "ollama_available": true,
+  "modelo_utilizado": "hasibzunair/melanet (Classificação Binária)"
+}

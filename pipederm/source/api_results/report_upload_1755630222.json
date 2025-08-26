@@ -1,0 +1,11 @@
+{
+  "classificacao": "BENIGNO",
+  "confianca": "75.0%",
+  "prioridade": "ROTINA",
+  "diagnostico_principal": "Benigno (Confiança: 75.0%)",
+  "diagnostico_alternativo": "Maligno (Confiança: 25.0%)",
+  "descricao_lesao": "Descrição (não estruturada):\nCircular, pequena, homogênea, bem delimitada, lisa, plana.",
+  "laudo_completo": "**DESCRIÇÃO CLÍNICA:**\nA lesão apresenta características de uma mácula pequena, homogênea e bem delimitada, com superfície lisa e plano. A ausência de alterações perceptíveis na região circundante sugere um processo benigno. No entanto, é importante destacar que a descrição morfológica não permite uma avaliação definitiva.\n\n**ANÁLISE COMPUTACIONAL:**\nA análise computacional realizada por IA apresentou hipótese principal de lesão benigna com confiança de 75,0%, seguida por hipótese alternativa de lesão maligna com confiança de 25,0%. É importante ressaltar que essa é uma análise preliminar e não substitui a avaliação médica presencial. A metodologia utilizada foi baseada em padrões de imagem dermatológicos treinados.\n\n**CORRELAÇÃO CLÍNICO-PATOLÓGICA:**\nA mácula pequena e homogênea pode sugerir uma lesão benigna, como melanoma in situ ou nevo. No entanto, a ausência de alterações na região circundante e a superfície lisa e plano podem ser características sugestivas de um processo benigno. É importante considerar diagnósticos diferenciais relevantes, como lesões traumáticas ou infecções.\n\n**RECOMENDAÇÕES MÉDICAS:**\nDevido à natureza preliminar da análise, é recomendável encaminhar o paciente para avaliação dermatológica presencial. Além disso, pode ser necessário realizar exames complementares, como biópsia ou imagem de alta resolução, para confirmar o diagnóstico.\n\n**LIMITAÇÕES E DISCLAIMER:**\nEssa análise é uma triagem por IA e não substitui a avaliação médica presencial. A confirmação diagnóstica requer avaliação médica presencial e exames complementares, se indicados.",
+  "ollama_available": true,
+  "modelo_utilizado": "hasibzunair/melanet (Classificação Binária)"
+}

@@ -1,0 +1,11 @@
+{
+  "classificacao": "BENIGNO",
+  "confianca": "75.0%",
+  "prioridade": "ROTINA",
+  "diagnostico_principal": "Benigno (Confiança: 75.0%)",
+  "diagnostico_alternativo": "Maligno (Confiança: 25.0%)",
+  "descricao_lesao": "Descrição (não estruturada):\nCircular, pequena, homogênea, bem delimitada, lisa, plana.",
+  "laudo_completo": "**DESCRIÇÃO CLÍNICA:**\nA lesão apresenta características de uma mácula pequena, homogênea e bem delimitada, com superfície lisa e plana. A descrição morfológica sugere uma lesão benigna, mas é importante considerar a possibilidade de outras condições dermatológicas. A análise detalhada da lesão é necessária para estabelecer um diagnóstico preciso.\n\n**ANÁLISE COMPUTACIONAL:**\nA análise computacional realizada por IA sugere uma hipótese principal de benignidade com 75,0% de confiança e uma hipótese alternativa de malignidade com 25,0% de confiança. É importante destacar que essa é uma análise preliminar por IA e não substitui a avaliação médica presencial para confirmar o diagnóstico.\n\n**CORRELAÇÃO CLÍNICO-PATOLÓGICA:**\nA lesão apresenta características sugestivas de uma mácula benigna, mas é importante considerar as possibilidades de outras condições dermatológicas, como melanoma in situ ou neoplasia benigna. A presença de bordos bem definidos e superfície lisa pode sugerir uma lesão benigna, no entanto, a análise detalhada da lesão é necessária para estabelecer um diagnóstico preciso.\n\n**RECOMENDAÇÕES MÉDICAS:**\nDevido à natureza preliminar desta análise e à necessidade de confirmação diagnóstica presencial, recomendamos encaminhar a paciente a um dermatologista especializado. Além disso, é importante realizar exames complementares se indicados para confirmar o diagnóstico.\n\n**LIMITAÇÕES E DISCLAIMER:**\nEssa análise é uma triagem por IA e não substitui a avaliação médica presencial. A confirmação diagnóstica requer avaliação médica presencial, pois essa análise tem limitações em termos de precisão e abrangência.",
+  "ollama_available": true,
+  "modelo_utilizado": "hasibzunair/melanet (Classificação Binária)"
+}
